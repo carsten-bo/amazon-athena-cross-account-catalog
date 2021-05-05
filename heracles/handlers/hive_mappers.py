@@ -43,7 +43,7 @@ class HiveMappers:
             createTime=0,
             lastAccessTime=HiveMappers.unix_epoch_as_int(glue_table.get('LastAccessTime', None)),
             retention=glue_table.get('Retention', None),
-            tableType=glue_table.get('TableType'),
+            tableType=glue_table.get('TableType', None),
             parameters=glue_table.get('Parameters', {}),
             viewOriginalText=None,
             viewExpandedText=None,
