@@ -56,7 +56,8 @@ class HiveMappers:
         )
         
         # To distinguish View from External table
-        if glue_table['TableType'] == "VIRTUAL_VIEW":
+        
+        if table.tableType == "VIRTUAL_VIEW":
             # Manipulating the catalog within ViewOriginalText so that it doesn't point to original catalog name
             table.viewOriginalText, table.viewExpandedText = HiveMappers.map_presto_view(glue_table['ViewOriginalText'])
             
