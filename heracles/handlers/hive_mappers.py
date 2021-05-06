@@ -43,7 +43,7 @@ class HiveMappers:
             createTime=0,
             lastAccessTime=HiveMappers.unix_epoch_as_int(glue_table.get('LastAccessTime', None)),
             retention=glue_table.get('Retention', None),
-            tableType=glue_table.get('TableType', None),
+            tableType=glue_table.get('TableType'),
             parameters=glue_table.get('Parameters', {}),
             viewOriginalText=None,
             viewExpandedText=None,
@@ -56,8 +56,7 @@ class HiveMappers:
         )
         
         # To distinguish View from External table
-        
-        if table.tableType == "VIRTUAL_VIEW":
+        if glue_table['TableType'] == "VIRTUAL_VIEW":
             # Manipulating the catalog within ViewOriginalText so that it doesn't point to original catalog name
             table.viewOriginalText, table.viewExpandedText = HiveMappers.map_presto_view(glue_table['ViewOriginalText'])
             
@@ -79,8 +78,8 @@ class HiveMappers:
             compressed=glue_table['StorageDescriptor'].get('Compressed'),
             numBuckets=glue_table['StorageDescriptor'].get('NumberOfBuckets', -1),
             serdeInfo=ttypes.SerDeInfo(
-                serializationLib=glue_table['StorageDescriptor'].get('SerdeInfo', {}).get('SerializationLibrary'),
-                parameters=glue_table['StorageDescriptor'].get('SerdeInfo', {}).get('Parameters'),
+                serializationLib=glue_table['StorageDescriptor']['SerdeInfo']['SerializationLibrary'],
+                parameters=glue_table['StorageDescriptor']['SerdeInfo']['Parameters'],
             ),
             bucketCols=glue_table['StorageDescriptor'].get('BucketColumns', []),
             sortCols=glue_table['StorageDescriptor'].get('SortColumns', []),
@@ -123,8 +122,8 @@ class HiveMappers:
             compressed=glue_partition['StorageDescriptor'].get('Compressed'),
             numBuckets=glue_partition['StorageDescriptor'].get('NumberOfBuckets', -1),
             serdeInfo=ttypes.SerDeInfo(
-                serializationLib=glue_partition['StorageDescriptor'].get('SerdeInfo', {}).get('SerializationLibrary'),
-                parameters=glue_partition['StorageDescriptor'].get('SerdeInfo', {}).get('Parameters'),
+                serializationLib=glue_partition['StorageDescriptor']['SerdeInfo']['SerializationLibrary'],
+                parameters=glue_partition['StorageDescriptor']['SerdeInfo']['Parameters'],
             ),
             bucketCols=glue_partition['StorageDescriptor'].get('BucketColumns', []),
             sortCols=glue_partition['StorageDescriptor'].get('SortColumns', []),
