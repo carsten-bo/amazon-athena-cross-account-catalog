@@ -1,20 +1,8 @@
-ARG PYTHON_VERSION="3.8"
+FROM public.ecr.aws/lambda/python:3.8
 
-FROM public.ecr.aws/lambda/python:${PYTHON_VERSION} AS base
+COPY requirements.txt .
+RUN python3 -m pip install -r requirements.txt && rm requirements.txt
 
-FROM base AS build-image
-
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH" 
-
-COPY . .
-RUN python3 -m pip install -r requirements.txt
-
-FROM base
-
-COPY --from=build-image /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-COPY --from=build-image /var/task/heracles ./heracles
+COPY heracles ./heracles
 
 CMD [ "heracles.lambda.handler" ]
