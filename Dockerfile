@@ -1,4 +1,3 @@
-ARG FUNCTION_DIR="/home/app"
 ARG ALPINE_VERSION="3.12"
 ARG PYTHON_VERSION="3.9"
 ARG BASE_IMAGE="python:${PYTHON_VERSION}-alpine${ALPINE_VERSION}"
@@ -26,22 +25,19 @@ RUN apk add \
     libcurl \
     libffi-dev \
     openssl-dev \
-    groff \
-    git
+    groff 
 
 
 RUN python -m venv /opt/venv
-# Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH" 
-RUN python3 -m pip install pyOpenSSL==20.0.1 cryptography boto3 awslambdaric
+RUN python3 -m pip install awslambdaric==1.0.0 boto3==1.17
 
 COPY . .
 RUN python3 -m pip install -r requirements.txt
 
 # Stage 3 - final runtime image
 FROM python-alpine
-
-ARG FUNCTION_DIR
+WORKDIR /home
 
 RUN apk add \
     --no-cache \
@@ -49,12 +45,9 @@ RUN apk add \
     openjdk8-jre
 
 COPY --from=build-image /opt/venv /opt/venv
-
-WORKDIR ${FUNCTION_DIR}
-COPY --from=build-image heracles ./heracles
-
 ENV PATH="/opt/venv/bin:$PATH"
 
+COPY --from=build-image heracles ./heracles
 
 #(Optional) Add Lambda Runtime Interface Emulator and use a script in the ENTRYPOINT for simpler local runs
 ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie /usr/bin/aws-lambda-rie 
